@@ -1,0 +1,26 @@
+name: Joke Action
+run-name: Dad joke for issue #${{ github.event.issue.number }}
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  joke:
+    if: ${{ !github.event.issue.pull_request && startsWith(github.event.comment.body, '/joke') && github.event.comment.user.login == 'Nanodagr8' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout trusted repository source
+        uses: actions/checkout@v4
+      - name: Fetch a joke from the sample Action
+        id: get-joke
+        uses: ./
+      - name: Post the generated joke
+        uses: peter-evans/create-or-update-comment@v5
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: ${{ steps.get-joke.outputs.joke }}
