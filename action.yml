@@ -1,0 +1,9 @@
+name: "Joke Action"
+description: "Fetches a random family-friendly dad joke and exposes it as an output"
+author: "Nanodagr8"
+outputs:
+  joke:
+    description: "The fetched joke text"
+runs:
+  using: node24
+  main: dist/index.js
