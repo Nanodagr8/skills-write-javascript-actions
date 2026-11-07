@@ -1,0 +1,2 @@
+﻿# ncc-generated JavaScript includes intentional literal whitespace in embedded runtime strings.
+dist/index.js whitespace=-blank-at-eol
