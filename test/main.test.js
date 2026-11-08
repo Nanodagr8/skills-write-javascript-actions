@@ -62,3 +62,19 @@ test("valid joke text is trimmed before it is published", async () => {
   assert.equal(result, "Test joke");
   assert.deepEqual(output, [["joke", "Test joke"]]);
 });
+
+test("numeric joke results do not become an apparently successful message", async () => {
+  const output = [];
+  const failures = [];
+  const core = {
+    setOutput(name, value) { output.push([name, value]); },
+    setFailed(message) { failures.push(message); }
+  };
+
+  const result = await run(async () => 42, core);
+
+  assert.equal(result, null);
+  assert.deepEqual(output, []);
+  assert.equal(failures.length, 1);
+  assert.match(failures[0], /empty|invalid/i);
+});
