@@ -5,7 +5,11 @@ import { pathToFileURL } from "node:url";
 
 export async function run(jokeFetcher = getJoke, actionCore = core) {
   try {
-    const joke = await jokeFetcher();
+    const fetched = await jokeFetcher();
+    if (typeof fetched !== "string" || fetched.trim() === "") {
+      throw new Error("Joke fetcher returned an empty or invalid joke");
+    }
+    const joke = fetched.trim();
     actionCore.setOutput("joke", joke);
     return joke;
   } catch (error) {
