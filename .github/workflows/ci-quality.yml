@@ -1,0 +1,65 @@
+name: Node Action Quality
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'dist/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'action.yml'
+      - '.github/workflows/ci-quality.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'test/**'
+      - 'dist/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'action.yml'
+      - '.github/workflows/ci-quality.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Node 24 tests and reproducible bundle
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Install locked dependencies
+        run: npm ci --no-fund --no-audit
+      - name: Run behavior tests
+        run: npm test
+      - name: Rebuild the bundled action
+        run: npm run build
+      - name: Verify committed bundle is reproducible
+        run: git diff --exit-code -- dist/
+      - name: Verify action metadata references bundle
+        run: |
+          test -s dist/index.js
+          grep -Eq 'using: node24' action.yml
+          grep -Eq 'main: dist/index.js' action.yml
+
+  dependency-audit:
+    name: High-severity dependency audit
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Audit dependency lockfile
+        run: npm audit --audit-level=high
