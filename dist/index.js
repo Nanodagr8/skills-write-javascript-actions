@@ -31620,7 +31620,11 @@ __nccwpck_require__.a(__webpack_module__, async (__webpack_handle_async_dependen
 
 async function run(jokeFetcher = _joke_js__WEBPACK_IMPORTED_MODULE_3__/* .getJoke */ .g, actionCore = _actions_core__WEBPACK_IMPORTED_MODULE_0__) {
   try {
-    const joke = await jokeFetcher();
+    const fetched = await jokeFetcher();
+    if (typeof fetched !== "string" || fetched.trim() === "") {
+      throw new Error("Joke fetcher returned an empty or invalid joke");
+    }
+    const joke = fetched.trim();
     actionCore.setOutput("joke", joke);
     return joke;
   } catch (error) {
